@@ -17,6 +17,27 @@ use ark_std::{
 #[macro_use]
 mod montgomery_backend;
 pub use montgomery_backend::*;
+pub mod plain_backend;
+
+#[cfg(not(target_vendor = "risc0"))]
+#[macro_export]
+macro_rules! MontFp {
+    ($c0:expr) => {{
+        let (is_positive, limbs) = $crate::ark_ff_macros::to_sign_and_limbs!($c0);
+        $crate::Fp::from_sign_and_limbs(is_positive, &limbs)
+    }};
+}
+
+#[cfg(target_vendor = "risc0")]
+#[macro_export]
+macro_rules! MontFp {
+    ($c0:expr) => {{
+        let (is_positive, limbs) = $crate::ark_ff_macros::to_sign_and_limbs!($c0);
+        $crate::Fp::plain_from_sign_and_limbs(is_positive, &limbs)
+    }};
+}
+
+pub use MontFp;
 
 use crate::{BigInt, BigInteger, FftField, Field, LegendreSymbol, PrimeField, SqrtPrecomputation};
 /// A trait that specifies the configuration of a prime field.

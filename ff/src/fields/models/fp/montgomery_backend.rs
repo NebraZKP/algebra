@@ -587,17 +587,7 @@ pub const fn sqrt_precomputation<const N: usize, T: MontConfig<N>>(
 ///     assert_eq!(NEG_ONE, -Fq::one());
 /// }
 /// ```
-#[macro_export]
-macro_rules! MontFp {
-    ($c0:expr) => {{
-        let (is_positive, limbs) = $crate::ark_ff_macros::to_sign_and_limbs!($c0);
-        $crate::Fp::from_sign_and_limbs(is_positive, &limbs)
-    }};
-}
-
 pub use ark_ff_macros::MontConfig;
-
-pub use MontFp;
 
 pub struct MontBackend<T: MontConfig<N>, const N: usize>(PhantomData<T>);
 
