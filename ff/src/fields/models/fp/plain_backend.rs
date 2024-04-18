@@ -230,19 +230,24 @@ impl<T: Fp256PlainConfig> FpConfig<4> for Fp256PlainBackend<T> {
 }
 
 impl<T: Fp256PlainConfig> Fp256<Fp256PlainBackend<T>> {
-    // const fn const_is_zero(&self) -> bool {
-    //     self.0.const_is_zero()
-    // }
+    const fn const_is_zero(&self) -> bool {
+        self.0.const_is_zero()
+    }
 
-    // const fn const_neg(self) -> Self {
-    //     if !self.const_is_zero() {
-    //         let mut out = T::MODULUS;
-    //         __sub_with_borrow(&mut out, &self.0);
-    //         Self(out, PhantomData)
-    //     } else {
-    //         self
-    //     }
-    // }
+    const fn sub_with_borrow(a: &BigInt<4>, b: &BigInt<4>) -> BigInt<4> {
+        a.const_sub_with_borrow(b).0
+    }
+
+    const fn const_neg(self) -> Self {
+        if !self.const_is_zero() {
+            Self(Self::sub_with_borrow(&T::MODULUS, &self.0), PhantomData)
+            // let mut out = T::MODULUS;
+            // __sub_with_borrow(&mut out, &self.0);
+            // Self(out, PhantomData)
+        } else {
+            self
+        }
+    }
 
     #[doc(hidden)]
     pub const fn plain_from_sign_and_limbs(is_positive: bool, limbs: &[u64]) -> Self {
@@ -253,8 +258,12 @@ impl<T: Fp256PlainConfig> Fp256<Fp256PlainBackend<T>> {
         });
         // TODO: assert is less than modulus
         // assert!(repr <= T::MODULUS);
-        assert!(is_positive);
-        Self(repr, PhantomData)
+        let res = Self(repr, PhantomData);
+        if is_positive {
+            res
+        } else {
+            res.const_neg()
+        }
     }
 }
 
