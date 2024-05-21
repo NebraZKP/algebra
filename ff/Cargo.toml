@@ -26,6 +26,8 @@ zeroize = { version = "1", default-features = false, features = ["zeroize_derive
 num-bigint = { version = "0.4", default-features = false }
 digest = { version = "0.10", default-features = false, features = ["alloc"] }
 itertools = { version = "0.10", default-features = false }
+[target.'cfg(target_vendor = "succinct")'.dependencies]
+sp1-zkvm = { git = "https://github.com/succinctlabs/sp1.git" }
 
 [dev-dependencies]
 ark-test-curves = { version = "0.4.2-alpha.1", path = "../test-curves", default-features = false, features = [ "bls12_381_curve", "mnt6_753", "secp256k1"] }

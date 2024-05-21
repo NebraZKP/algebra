@@ -19,7 +19,7 @@ mod montgomery_backend;
 pub use montgomery_backend::*;
 pub mod plain_backend;
 
-#[cfg(not(target_vendor = "risc0"))]
+#[cfg(not(any(target_vendor = "risc0", target_vendor = "succinct")))]
 #[macro_export]
 macro_rules! MontFp {
     ($c0:expr) => {{
@@ -28,7 +28,7 @@ macro_rules! MontFp {
     }};
 }
 
-#[cfg(target_vendor = "risc0")]
+#[cfg(any(target_vendor = "risc0", target_vendor = "succinct"))]
 #[macro_export]
 macro_rules! MontFp {
     ($c0:expr) => {{

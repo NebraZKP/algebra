@@ -19,6 +19,9 @@ extern "C" {
     );
 }
 
+#[cfg(target_vendor = "succinct")]
+use sp1_zkvm::precompiles::bigint_mulmod::sys_bigint;
+
 #[inline(always)]
 fn __sub_with_borrow(a: &mut BigInt<4>, b: &BigInt<4>) -> bool {
     use crate::biginteger::arithmetic::sbb_for_sub_with_borrow as sbb;
@@ -53,7 +56,7 @@ pub trait Fp256PlainConfig: 'static + Sync + Send + Sized {
     const TWO_ADICITY: u32;
     const TWO_ADIC_ROOT_OF_UNITY: Fp256<Fp256PlainBackend<Self>>;
 
-    #[cfg(not(target_vendor = "risc0"))]
+    #[cfg(not(any(target_vendor = "risc0", target_vendor = "succinct")))]
     /// Only required on host-side
     type FullImplConfig: FpConfig<4>;
 
@@ -116,7 +119,7 @@ impl<T: Fp256PlainConfig> FpConfig<4> for Fp256PlainBackend<T> {
     }
 
     fn mul_assign(a: &mut Fp256<Self>, b: &Fp256<Self>) {
-        #[cfg(target_vendor = "risc0")]
+        #[cfg(any(target_vendor = "risc0", target_vendor = "succinct"))]
         {
             let a_copy = a.clone();
             #[allow(unsafe_code)]
@@ -129,7 +132,7 @@ impl<T: Fp256PlainConfig> FpConfig<4> for Fp256PlainBackend<T> {
                 sys_bigint(out_ptr, 0, a_ptr, b_ptr, mod_ptr);
             }
         }
-        #[cfg(not(target_vendor = "risc0"))]
+        #[cfg(not(any(target_vendor = "risc0", target_vendor = "succinct")))]
         {
             // Naive implementation for now
             let mut aa = Fp256::<T::FullImplConfig>::from_bigint(a.0).unwrap();
